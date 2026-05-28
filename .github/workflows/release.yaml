@@ -33,7 +33,7 @@ jobs:
           ORIGINAL_TAG=${{ github.ref_name }}
           MAJOR_TAG=$(echo "$ORIGINAL_TAG" | cut -d. -f1)
 
-          git add -f dist/
+          git add -f dist/index.js
           git commit -m "chore: build dist files for $ORIGINAL_TAG" || echo "No changes to commit"
           git push origin HEAD:${{ github.event.base_ref || 'main' }}
 

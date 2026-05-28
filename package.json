@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "check": "biome migrate --write && biome check --fix",
-    "build": "tsup src/index.ts --minify --clean",
+    "build": "ncc build src/index.ts --minify",
     "test": "vitest run"
   },
   "type": "module",
@@ -19,8 +19,8 @@
     "@tsconfig/node24": "24.0.4",
     "@tsconfig/strictest": "2.0.8",
     "@types/node": "24.12.4",
+    "@vercel/ncc": "^0.38.4",
     "pnpm": "11.1.2",
-    "tsup": "^8.5.1",
     "typescript": "6.0.3",
     "vitest": "4.1.6"
   },

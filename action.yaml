@@ -2,4 +2,4 @@ name: "Setup OpenCL"
 description: "Github Action to automatically install and configure OpenCL"
 runs:
   using: "node24"
-  main: "dist/index.cjs"
+  main: "dist/index.js"
