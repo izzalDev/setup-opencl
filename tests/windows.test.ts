@@ -14,18 +14,14 @@ vi.mock('@actions/core', () => ({
   info: vi.fn(),
 }))
 
-vi.mock('@actions/tool-cache', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@actions/tool-cache')>()
-  let cachedPath: string | null = null
-  return {
-    ...actual,
-    downloadTool: vi.fn().mockImplementation(async (url: string) => {
-      if (cachedPath) return cachedPath
-      cachedPath = await actual.downloadTool(url)
-      return cachedPath
-    }),
-  }
-})
+vi.mock('@actions/cache', () => ({
+  restoreCache: vi.fn(),
+  saveCache: vi.fn(),
+}))
+
+vi.mock('@actions/tool-cache', () => ({
+  downloadTool: vi.fn().mockResolvedValue('/tmp/fake-installer.exe'),
+}))
 
 vi.mock('fs/promises', () => ({
   readdir: vi.fn().mockResolvedValue(['runtime.msi', 'readme.txt']),

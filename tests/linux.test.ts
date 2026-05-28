@@ -86,7 +86,7 @@ describe('runLinuxPipeline', () => {
   it('executes all commands in correct order', async () => {
     await runLinuxPipeline(env)
 
-    expect(mockedRunCommand).toHaveBeenCalledTimes(7)
+    expect(mockedRunCommand).toHaveBeenCalledTimes(8)
 
     const calls = mockedRunCommand.mock.calls
     expect(calls[0]?.[1]?.[0]).toBe('wget')
@@ -102,6 +102,7 @@ describe('runLinuxPipeline', () => {
       'intel-oneapi-runtime-opencl',
     ])
     expect(calls[5]?.[1]).toEqual(['apt-get', '-o', `Dir::Cache::Archives=${cacheDir}`, 'install', '-y', 'clinfo'])
-    expect(calls[6]?.[1]).toEqual(['-l'])
+    expect(calls[6]?.[1]).toEqual(['chmod', '-R', '777', cacheDir])
+    expect(calls[7]?.[1]).toEqual(['-l'])
   })
 })

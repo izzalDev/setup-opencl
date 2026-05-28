@@ -40,7 +40,11 @@ export const runLinuxPipeline = async (env: ActionEnv): Promise<void> => {
   info('🔍 Installing clinfo for verification...')
   await runCommand('sudo', ['apt-get', '-o', `Dir::Cache::Archives=${cacheDir}`, 'install', '-y', 'clinfo'], env)
 
-  if (!hit) await saveCache(cachePath, cacheKey)
+  if (!hit) {
+    info('🔓 Fixing cache directory permissions...')
+    await runCommand('sudo', ['chmod', '-R', '777', cacheDir], env)
+    await saveCache(cachePath, cacheKey)
+  }
 
   info('✅ Verifying OpenCL installation with clinfo...')
   await runCommand('clinfo', ['-l'], env)

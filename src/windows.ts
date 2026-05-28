@@ -1,6 +1,7 @@
 import { readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { restoreCache, saveCache } from '@actions/cache'
 import { info } from '@actions/core'
 import { downloadTool } from '@actions/tool-cache'
 import { runCommand } from './exec.js'
@@ -50,7 +51,21 @@ const installMsi = async (extractedFolder: string, env: ActionEnv): Promise<void
 }
 
 export const runWindowsPipeline = async (env: ActionEnv): Promise<void> => {
-  const exePath = await downloadInstaller()
-  const extractedFolder = await extractMsi(exePath, env)
+  const cacheKey = 'intel-opencl-windows-extracted-2025.3.1.762'
+  const tempDir = process.env['RUNNER_TEMP'] ?? tmpdir()
+  const extractedFolder = path.join(tempDir, 'opencl_extracted')
+  const cachePath = [extractedFolder]
+
+  const hit = await restoreCache(cachePath, cacheKey)
+
+  if (!hit) {
+    const exePath = await downloadInstaller()
+    await extractMsi(exePath, env)
+    info('💾 Saving extracted installer to cache...')
+    await saveCache(cachePath, cacheKey)
+  } else {
+    info('♻️ Restored extracted installer from cache.')
+  }
+
   await installMsi(extractedFolder, env)
 }
