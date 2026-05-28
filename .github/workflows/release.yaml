@@ -3,7 +3,7 @@ name: release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   tag:
@@ -35,6 +35,7 @@ jobs:
 
           git add -f dist/
           git commit -m "chore: build dist files for $ORIGINAL_TAG" || echo "No changes to commit"
+          git push origin HEAD:${{ github.event.base_ref || 'main' }}
 
           git tag -f "$ORIGINAL_TAG"
           git tag -f "$MAJOR_TAG"
