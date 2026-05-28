@@ -1,14 +1,9 @@
 name: release
 
 on:
-  pull_request:
-    paths:
-      - .github/workflows/release.yaml
   push:
-    branches:
-      - main
     tags:
-      - v*
+      - 'v*.*.*'
 
 jobs:
   tag:
@@ -18,20 +13,31 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
+
       - run: npm install -g corepack
       - run: corepack enable
       - run: pnpm i
       - run: pnpm build
-      - name: Update v1 tag
-        if: github.event_name != 'pull_request'
+
+      - name: Commit dist and update tags
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dist/
-          git commit -m "chore: generate dist files" || echo "No changes to commit"
-          git tag -f v1
-          git push origin HEAD
-          git push origin v1 --force
+
+          ORIGINAL_TAG=${{ github.ref_name }}
+          MAJOR_TAG=$(echo "$ORIGINAL_TAG" | cut -d. -f1)
+
+          git add -f dist/
+          git commit -m "chore: build dist files for $ORIGINAL_TAG" || echo "No changes to commit"
+
+          git tag -f "$ORIGINAL_TAG"
+          git tag -f "$MAJOR_TAG"
+
+          git push origin "$ORIGINAL_TAG" --force
+          git push origin "$MAJOR_TAG" --force
