@@ -1,89 +1,46 @@
-# typescript-action [![ts](https://github.com/int128/typescript-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/int128/typescript-action/actions/workflows/ts.yaml)
+# setup-opencl [![ts](https://github.com/izzal/setup-opencl/actions/workflows/ts.yaml/badge.svg)](https://github.com/izzal/setup-opencl/actions/workflows/ts.yaml)
 
-This is a template of TypeScript action.
-Inspired from https://github.com/actions/typescript-action.
+GitHub Action to automatically install and configure OpenCL.
 
 ## Features
 
-- Ready to develop with the minimum configs
-  - tsconfig
-  - Biome
-  - Vitest
-- Automated continuous release
-- Keep consistency of generated files
-- Shipped with Renovate config
-
-## Getting Started
-
-Click `Use this template` to create a repository.
-
-An initial release `v0.0.0` is automatically created by GitHub Actions.
-You can see the generated files in `dist` directory on the tag.
-
-Then, checkout your repository and test it. Node.js is required.
-
-```console
-$ git clone https://github.com/your/repo.git
-
-$ pnpm i
-$ pnpm test
-```
-
-Create a pull request with your change.
-
-After merging the pull request, a new minor release (such as `v0.1.0`) is created.
-
-### Stable release
-
-When you want to create a stable release, change the major version in [release workflow](.github/workflows/release.yaml).
-
-```yaml
-- uses: int128/release-typescript-action@v1
-  with:
-    major-version: 1
-```
-
-Then a new stable release `v1.0.0` is created.
+- Sets up OpenCL on Ubuntu (`ubuntu-latest`) and Windows (`windows-latest`).
+- Automatically handles platform-specific installations (e.g., configuring `DEBIAN_FRONTEND` for Linux and downloading the Intel OpenCL runtime for Windows).
 
 ## Specification
 
-To run this action, create a workflow as follows:
+To use this action, simply add it to your workflow:
 
 ```yaml
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: int128/typescript-action@v1
-        with:
-          name: hello
+      - uses: actions/checkout@v4
+      - uses: izzal/setup-opencl@v1
 ```
 
-### Inputs
-
-| Name   | Default    | Description   |
-| ------ | ---------- | ------------- |
-| `name` | (required) | example input |
-
-### Outputs
-
-| Name      | Description    |
-| --------- | -------------- |
-| `example` | example output |
+This action currently takes no inputs and provides no outputs. It will just install and configure the necessary OpenCL runtime on the system.
 
 ## Development
 
-### Release workflow
+To develop and test this action locally:
 
-When a pull request is merged into main branch, a new minor release is created by GitHub Actions.
-See https://github.com/int128/release-typescript-action for details.
+```console
+$ git clone https://github.com/izzal/setup-opencl.git
 
-### Keep consistency of generated files
+$ pnpm i
+$ pnpm test
+```
 
-If a pull request needs to be fixed by Prettier, an additional commit to fix it will be added by GitHub Actions.
-See https://github.com/int128/update-generated-files-action for details.
+### Stable release
 
-### Dependency update
+When you want to create a stable release, update the major version in the [release workflow](.github/workflows/release.yaml):
 
-You can enable Renovate to update the dependencies.
-This repository is shipped with the config https://github.com/int128/typescript-action-renovate-config.
+```yaml
+      - uses: int128/release-typescript-action@v1
+        with:
+          major-version: 1
+```
+
+Then a new stable release (e.g., `v1.0.0`) will be created automatically.

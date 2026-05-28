@@ -11,6 +11,12 @@ importers:
       '@actions/core':
         specifier: 3.0.1
         version: 3.0.1
+      '@actions/exec':
+        specifier: ^3.0.0
+        version: 3.0.0
+      '@actions/tool-cache':
+        specifier: ^4.0.0
+        version: 4.0.0
       '@octokit/action':
         specifier: 8.0.4
         version: 8.0.4
@@ -59,6 +65,9 @@ packages:
 
   '@actions/io@3.0.2':
     resolution: {integrity: sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw==}
+
+  '@actions/tool-cache@4.0.0':
+    resolution: {integrity: sha512-L8P9HbXvpvqjZDveb/fdsa55IVC0trfPgQ4ZwGo6r5af6YDVdM9vMGPZ7rgY2fAT9gGj4PSYd6bYlg3p3jD78A==}
 
   '@biomejs/biome@2.4.15':
     resolution: {integrity: sha512-j5VH3a/h/HXTKBM50MDMxRCzkeLv9S2XJcW2WgnZT1+xyisi+0bISrXR82gCX+8S9lvK0skEvHJRN+3Ktr2hlw==}
@@ -516,6 +525,11 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
+  semver@7.8.1:
+    resolution: {integrity: sha512-rkVq3IXh+4FDGch+KwzX3aV9W3kO54GyEgpvBzSyctDA6Xtd7RJQV1xmXbeQp5v7+VzLOfVqiutSE6GICgPFvg==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   siginfo@2.0.0:
     resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
 
@@ -676,6 +690,14 @@ snapshots:
       undici: 6.25.0
 
   '@actions/io@3.0.2': {}
+
+  '@actions/tool-cache@4.0.0':
+    dependencies:
+      '@actions/core': 3.0.1
+      '@actions/exec': 3.0.0
+      '@actions/http-client': 4.0.1
+      '@actions/io': 3.0.2
+      semver: 7.8.1
 
   '@biomejs/biome@2.4.15':
     optionalDependencies:
@@ -1057,6 +1079,8 @@ snapshots:
       '@rolldown/binding-wasm32-wasi': 1.0.1
       '@rolldown/binding-win32-arm64-msvc': 1.0.1
       '@rolldown/binding-win32-x64-msvc': 1.0.1
+
+  semver@7.8.1: {}
 
   siginfo@2.0.0: {}
 
