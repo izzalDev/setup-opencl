@@ -1,8 +1,14 @@
+import { restoreCache, saveCache } from '@actions/cache'
 import { info } from '@actions/core'
 import { runCommand } from './exec.js'
 import type { ActionEnv } from './types.js'
 
 export const runLinuxPipeline = async (env: ActionEnv): Promise<void> => {
+  const cacheKey = 'intel-oneapi-apt'
+  const cacheDir = `${process.cwd()}/apt-cache`
+  const cachePath = [cacheDir]
+  const hit = await restoreCache(cachePath, cacheKey)
+
   info('📦 Adding Intel repository GPG key (ASCII format)...')
   await runCommand(
     'sudo',
@@ -24,10 +30,17 @@ export const runLinuxPipeline = async (env: ActionEnv): Promise<void> => {
   await runCommand('sudo', ['apt-get', 'update'], env)
 
   info('🔧 Installing Intel oneAPI Runtime (CPU)...')
-  await runCommand('sudo', ['apt-get', 'install', '-y', 'intel-oneapi-runtime-opencl'], env)
+  await runCommand('mkdir', ['-p', `${cacheDir}/partial`], env)
+  await runCommand(
+    'sudo',
+    ['apt-get', '-o', `Dir::Cache::Archives=${cacheDir}`, 'install', '-y', 'intel-oneapi-runtime-opencl'],
+    env,
+  )
 
   info('🔍 Installing clinfo for verification...')
-  await runCommand('sudo', ['apt-get', 'install', '-y', 'clinfo'], env)
+  await runCommand('sudo', ['apt-get', '-o', `Dir::Cache::Archives=${cacheDir}`, 'install', '-y', 'clinfo'], env)
+
+  if (!hit) await saveCache(cachePath, cacheKey)
 
   info('✅ Verifying OpenCL installation with clinfo...')
   await runCommand('clinfo', ['-l'], env)

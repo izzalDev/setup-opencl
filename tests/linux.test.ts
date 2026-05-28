@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ActionEnv } from '../src/types.js'
 
-vi.mock('@actions/core', () => ({
-  info: vi.fn(),
+vi.mock('@actions/core', () => ({ info: vi.fn() }))
+vi.mock('@actions/cache', () => ({
+  restoreCache: vi.fn(),
+  saveCache: vi.fn(),
 }))
-
-vi.mock('../src/exec.js', () => ({
-  runCommand: vi.fn().mockResolvedValue(0),
-}))
+vi.mock('../src/exec.js', () => ({ runCommand: vi.fn().mockResolvedValue(0) }))
 
 import { runCommand } from '../src/exec.js'
 import { runLinuxPipeline } from '../src/linux.js'
 
 const mockedRunCommand = vi.mocked(runCommand)
+const cacheDir = `${process.cwd()}/apt-cache`
 
 describe('runLinuxPipeline', () => {
   const env: ActionEnv = {
@@ -62,7 +62,7 @@ describe('runLinuxPipeline', () => {
 
     expect(mockedRunCommand).toHaveBeenCalledWith(
       'sudo',
-      ['apt-get', 'install', '-y', 'intel-oneapi-runtime-opencl'],
+      ['apt-get', '-o', `Dir::Cache::Archives=${cacheDir}`, 'install', '-y', 'intel-oneapi-runtime-opencl'],
       env,
     )
   })
@@ -70,7 +70,11 @@ describe('runLinuxPipeline', () => {
   it('installs clinfo', async () => {
     await runLinuxPipeline(env)
 
-    expect(mockedRunCommand).toHaveBeenCalledWith('sudo', ['apt-get', 'install', '-y', 'clinfo'], env)
+    expect(mockedRunCommand).toHaveBeenCalledWith(
+      'sudo',
+      ['apt-get', '-o', `Dir::Cache::Archives=${cacheDir}`, 'install', '-y', 'clinfo'],
+      env,
+    )
   })
 
   it('runs clinfo verification', async () => {
@@ -82,32 +86,22 @@ describe('runLinuxPipeline', () => {
   it('executes all commands in correct order', async () => {
     await runLinuxPipeline(env)
 
-    expect(mockedRunCommand).toHaveBeenCalledTimes(6)
+    expect(mockedRunCommand).toHaveBeenCalledTimes(7)
 
     const calls = mockedRunCommand.mock.calls
-
-    // 1. Wget GPG Key
-    expect(calls[0]?.[0]).toBe('sudo')
     expect(calls[0]?.[1]?.[0]).toBe('wget')
-
-    // 2. Add APT Source
-    expect(calls[1]?.[0]).toBe('bash')
-    expect(calls[1]?.[1]?.[1]).toContain('tee /etc/apt/sources.list.d/oneAPI.list')
-
-    // 3. Apt Update
-    expect(calls[2]?.[0]).toBe('sudo')
+    expect(calls[1]?.[1]?.[1]).toContain('tee')
     expect(calls[2]?.[1]).toEqual(['apt-get', 'update'])
-
-    // 4. Install OpenCL CPU Runtime
-    expect(calls[3]?.[0]).toBe('sudo')
-    expect(calls[3]?.[1]).toEqual(['apt-get', 'install', '-y', 'intel-oneapi-runtime-opencl'])
-
-    // 5. Install Clinfo
-    expect(calls[4]?.[0]).toBe('sudo')
-    expect(calls[4]?.[1]).toEqual(['apt-get', 'install', '-y', 'clinfo'])
-
-    // 6. Verify Clinfo
-    expect(calls[5]?.[0]).toBe('clinfo')
-    expect(calls[5]?.[1]).toEqual(['-l'])
+    expect(calls[3]?.[1]).toEqual(['-p', `${cacheDir}/partial`])
+    expect(calls[4]?.[1]).toEqual([
+      'apt-get',
+      '-o',
+      `Dir::Cache::Archives=${cacheDir}`,
+      'install',
+      '-y',
+      'intel-oneapi-runtime-opencl',
+    ])
+    expect(calls[5]?.[1]).toEqual(['apt-get', '-o', `Dir::Cache::Archives=${cacheDir}`, 'install', '-y', 'clinfo'])
+    expect(calls[6]?.[1]).toEqual(['-l'])
   })
 })
